@@ -1,0 +1,62 @@
+<workflow-app name="wf-geneos_file_data" xmlns="uri:oozie:workflow:0.4">
+	<credentials>
+		<credential name='my-hcat-creds' type='hcat'>
+			<property>
+				<name>hcat.metastore.uri</name>
+				<value>${metastore_url}</value>
+			</property>
+			<property>
+				<name>hcat.metastore.principal</name>
+				<value>${hive_principal}</value>
+			</property>
+		</credential>
+	</credentials>
+	<start to="sqoop-import"/>
+		<action name="sqoop-import" cred='my-hcat-creds'>
+			<shell xmlns="uri:oozie:shell-action:0.2">
+				<job-tracker>${jobTracker}</job-tracker>
+				<name-node>${nameNode}</name-node>
+				<exec>../sqoop_scpt/import_file_data.sh</exec>
+                    <argument>${ORA_CONN_URL}</argument>
+                    <argument>${USER_NAME}</argument>
+                    <argument>${PASSWORD}</argument>
+                    <argument>${HIVE_STG_PATH}</argument>
+				<file>../sqoop_scpt/import_file_data.sh</file>
+			</shell>        
+			<ok to="hive-insert"/>
+			<error to="sqoop-import-fail"/>
+		</action>
+		<action name="hive-insert"  cred='my-hcat-creds'>
+			<hive xmlns="uri:oozie:hive-action:0.2">
+				<job-tracker>${jobTracker}</job-tracker>
+				<name-node>${nameNode}</name-node>
+				<job-xml>hive-site.xml</job-xml>
+				<script>../hive_scpt/insert_table.hql</script>
+				<param>HIVE_DB=${HIVE_DB}</param>
+                <param>GENEOS_FILE=${GENEOS_FILE}</param>
+			</hive>
+			<ok to="remove_stg_dir"/>
+                        <error to="hive-insert-fail"/>
+		</action>
+		<action name="remove_stg_dir" cred='my-hcat-creds'>
+			<shell xmlns="uri:oozie:shell-action:0.2">
+				<job-tracker>${jobTracker}</job-tracker>
+				<name-node>${nameNode}</name-node>
+				<exec>../hdfs_scpt/remove_stg_dir.sh</exec>
+                <argument>${HIVE_STG_PATH}</argument>
+                <file>../hdfs_scpt/remove_stg_dir.sh</file>
+			</shell>        
+			<ok to="end"/>
+			<error to="remove_stg_dir-fail"/>
+		</action>
+		<kill name="sqoop-import-fail">
+			<message>sqoop import failed, error at [${wf:errorMessage(wf:lastErrorNode())}]</message>
+		</kill>
+		<kill name="hive-insert-fail">
+			<message>hive insert failed, error at [${wf:errorMessage(wf:lastErrorNode())}]</message>
+		</kill>
+		<kill name="remove_stg_dir-fail">
+			<message>remove stg dir failed, error at [${wf:errorMessage(wf:lastErrorNode())}]</message>
+		</kill>
+	<end name="end"/>
+</workflow-app>

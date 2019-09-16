@@ -1,0 +1,31 @@
+
+cd gtc_model/
+git config credential.helper store
+git pull origin feature_bfds
+git checkout feature_bfds
+cd ..
+
+#cp -a bfds/ gtc_model/deploy/UNIX/generic/gtc_model/
+#cp -a mmpi/ gtc_model/deploy/UNIX/generic/gtc_model/
+#cp -a mm20q/ gtc_model/deploy/UNIX/generic/gtc_model/
+cp -a navnow/ gtc_model/deploy/UNIX/generic/gtc_model/
+#cp -a navnow/python_scpt/hive_to_geneos.py gtc_model/deploy/UNIX/generic/gtc_model/navnow/python_scpt/
+#cp -a navnow/wrapper/ gtc_model/deploy/UNIX/generic/gtc_model/navnow/
+#cp -a navnow/wrapper/pxo_navnow_geneos_realtime_wrapper.sh gtc_model/deploy/UNIX/generic/gtc_model/navnow/wrapper/
+#cp -a navnow/properties/ gtc_model/deploy/UNIX/generic/gtc_model/navnow/
+#cp -a navnow/python_scpt/xnd_mtmi.py gtc_model/deploy/UNIX/generic/gtc_model/navnow/python_scpt/
+#cp -a navnow/python_scpt/xnd_pricing.py gtc_model/deploy/UNIX/generic/gtc_model/navnow/python_scpt/
+#cp -a bfds/python_scpt/pxo_bfds_realtime.py gtc_model/deploy/UNIX/generic/gtc_model/bfds/python_scpt/
+
+
+#cp -a navnow/wrapper/ gtc_model/deploy/UNIX/generic/gtc_model/navnow/
+#cp -a navnow/python_scpt/hive_to_geneos.py gtc_model/deploy/UNIX/generic/gtc_model/navnow/python_scpt/
+#cp -a navnow/python_scpt/hive_to_geneos_mtmi.py gtc_model/deploy/UNIX/generic/gtc_model/navnow/python_scpt/
+#cp -a navnow/python_scpt/hive_to_geneos_pricing.py gtc_model/deploy/UNIX/generic/gtc_model/navnow/python_scpt/
+
+
+cd gtc_model/
+git add --all
+git status
+git commit -m "Alter table to seperate NASDAQ and BFDS"
+git push origin feature_bfds
