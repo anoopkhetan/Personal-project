@@ -1,0 +1,66 @@
+<workflow-app name="regenerate-hive-mart" xmlns="uri:oozie:workflow:0.4">
+	<credentials>
+		<credential name='my-hcat-creds' type='hcat'>
+			<property>
+				<name>hcat.metastore.uri</name>
+				<value>${metastore_url}</value>
+			</property>
+			<property>
+				<name>hcat.metastore.principal</name>
+				<value>${hive_principal}</value>
+			</property>
+		</credential>
+	</credentials>
+	<start to="create-mart"/>
+	<action name="create-mart"  cred='my-hcat-creds'>
+        <hive xmlns="uri:oozie:hive-action:0.2">
+          <job-tracker>${jobTracker}</job-tracker>
+			<name-node>${nameNode}</name-node>
+            <job-xml>hive-site.xml</job-xml>
+            <script>${mart_sql_path}</script>
+			<param>hive_db=${hive_db_prefix}${owner}</param>
+        </hive>
+        <ok to="update-counts"/>
+        <error to="fail"/>
+    </action>
+	<fork name="update-counts">
+		<path start="update_count_hive"/>
+		<path start="update_count_teradata"/>
+	</fork>
+		<action name="update_count_hive"  cred='my-hcat-creds'>
+			<hive xmlns="uri:oozie:hive-action:0.2">
+				<job-tracker>${jobTracker}</job-tracker>
+				<name-node>${nameNode}</name-node>
+				<job-xml>hive-site.xml</job-xml>
+				<script>update_counts.sql</script>
+				<param>table_name=${hive_db_prefix}${owner}.${table_name}_H</param>
+			</hive>
+			<ok to="end-update-counts"/>
+			<error to="fail"/>
+	</action>
+	<action name="update_count_teradata"  cred='my-hcat-creds'>
+        <java>
+          <job-tracker>${jobTracker}</job-tracker>
+			<name-node>${nameNode}</name-node>
+			<main-class>com.ssc.teradata.Caller</main-class>
+			<arg>call ${wf:conf("source_db")}.REFRESH_BDA_MART_COUNT(?,?,?,?:${table_name}_H,?:${hive_db_prefix}${owner});</arg>
+            <capture-output/>
+        </java>
+        <ok to="end-update-counts"/>
+        <error to="fail"/>
+    </action>
+	
+	<join name="end-update-counts" to="end"/>
+	<kill name="fail">
+		<message>error at [${wf:errorMessage(wf:lastErrorNode())}]</message>
+	</kill>
+	<end name="end"/>
+</workflow-app>
+
+	<!--
+     <property>
+		<name>hive_db_prefix</name>
+		<value>h011gtcsandbox</value>
+	</property>
+        -->
+		

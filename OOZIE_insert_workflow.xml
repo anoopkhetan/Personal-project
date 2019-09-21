@@ -1,0 +1,29 @@
+<workflow-app name="hive-insert" xmlns="uri:oozie:workflow:0.4">
+	<credentials>
+		<credential name='my-hcat-creds' type='hcat'>
+			<property>
+				<name>hcat.metastore.uri</name>
+				<value>${metastore_url}</value>
+			</property>
+			<property>
+				<name>hcat.metastore.principal</name>
+				<value>${hive_principal}</value>
+			</property>
+		</credential>
+	</credentials>
+	<start to="insert-table"/>
+	<action name="insert-table"  cred='my-hcat-creds'>
+        <hive xmlns="uri:oozie:hive-action:0.2">
+          <job-tracker>${jobTracker}</job-tracker>
+			<name-node>${nameNode}</name-node>
+            <job-xml>hive-site.xml</job-xml>
+            <script>/user/p800184/oozie_p804670/insert_table.hql</script>
+	    </hive>
+        <ok to="end"/>
+        <error to="fail"/>
+    </action>
+	<kill name="fail">
+		<message>error at [${wf:errorMessage(wf:lastErrorNode())}]</message>
+	</kill>
+	<end name="end"/>
+</workflow-app>

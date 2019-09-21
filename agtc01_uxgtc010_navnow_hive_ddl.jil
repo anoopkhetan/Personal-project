@@ -1,0 +1,13 @@
+/* ----------------- agtc01_uxgtc010_navnow_hive_ddl ----------------- */ 
+insert_job: agtc01_uxgtc010_navnow_hive_ddl: CMD 
+command: /usr/local/ccms/gtc/gtc_model/navnow/wrapper/pxo_navnow_hive_ddl_wrapper.sh /usr/local/ccms/gtc/gtc_model/navnow/properties/dev-nds.properties
+machine: agtc01.statestr.com
+owner: ccms
+permission:
+date_conditions: 0
+description: "navnow hive ddl"
+term_run_time: 30
+std_out_file: "/usr/local/ccms/GTC_LOGS/navnow/${AUTO_JOB_NAME}_`date +%m%d%y_%T`.log"
+std_err_file: "/usr/local/ccms/GTC_LOGS/navnow/${AUTO_JOB_NAME}_`date +%m%d%y_%T`.log"
+max_run_alarm: 20
+alarm_if_fail: 0

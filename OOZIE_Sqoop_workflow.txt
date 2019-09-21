@@ -1,0 +1,56 @@
+<workflow-app name="sqoop-hdfs-import" xmlns="uri:oozie:workflow:0.4">
+	<credentials>
+		<credential name='my-hcat-creds' type='hcat'>
+			<property>
+				<name>hcat.metastore.uri</name>
+				<value>${metastore_url}</value>
+			</property>
+			<property>
+				<name>hcat.metastore.principal</name>
+				<value>${hive_principal}</value>
+			</property>
+		</credential>
+	</credentials>
+	<start to="sqoop-import"/>
+	<action name="sqoop-import" cred='my-hcat-creds'>
+<shell xmlns="uri:oozie:shell-action:0.2">
+                 <job-tracker>${jobTracker}</job-tracker>
+	         <name-node>${nameNode}</name-node>
+                <exec>/user/p800184/oozie_p804670/sqoop-import.sh</exec>
+                <file>/user/p800184/oozie_p804670/sqoop-import.sh</file>
+	   </shell>        
+        <ok to="insert-table"/>
+        <error to="import-fail"/>
+    </action>
+    <action name="insert-table"  cred='my-hcat-creds'>
+        <hive xmlns="uri:oozie:hive-action:0.2">
+          <job-tracker>${jobTracker}</job-tracker>
+	  <name-node>${nameNode}</name-node>
+            <job-xml>hive-site.xml</job-xml>
+            <script>/user/p800184/oozie_p804670/insert_sqoop_table.hql</script>
+	    </hive>
+        <ok to="truncate-table"/>
+        <error to="insert-fail"/>
+    </action>
+	<action name="truncate-table"  cred='my-hcat-creds'>
+<shell xmlns="uri:oozie:shell-action:0.2">
+                 <job-tracker>${jobTracker}</job-tracker>
+	         <name-node>${nameNode}</name-node>
+                 <exec>/user/p800184/oozie_p804670/remove-hdfs-dir.sh</exec>
+                <file>/user/p800184/oozie_p804670/remove-hdfs-dir.sh</file>
+	   </shell>  
+        <ok to="end"/>
+        <error to="truncate-fail"/>
+    </action>
+	<kill name="import-fail">
+		<message>import failed, error at [${wf:errorMessage(wf:lastErrorNode())}]</message>
+	</kill>
+		<kill name="insert-fail">
+		<message>insert failed, error at [${wf:errorMessage(wf:lastErrorNode())}]</message>
+	</kill>
+		<kill name="truncate-fail">
+		<message>truncate failed, error at [${wf:errorMessage(wf:lastErrorNode())}]</message>
+	</kill>
+	<end name="end"/>
+</workflow-app>
+

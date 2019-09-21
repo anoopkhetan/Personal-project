@@ -1,0 +1,16 @@
+update_job: agtc01_uxgtc025_navnow_nds_daily_load
+job_type: CMD
+command: /usr/local/ccms/gtc/gtc_model/navnow/wrapper/pxo_navnow_nds_daily_load_wrapper.sh /usr/local/ccms/gtc/gtc_model/navnow/properties/dev-nds.properties
+machine: agtc01.statestr.com
+owner: ccms
+permission:
+date_conditions: 1
+days_of_week: mo,tu,we,th,fr
+exclude_calendar: uxgtc_navnow_calendar
+start_times: "22:30"
+description: "navnow nds daily load"
+term_run_time: 400
+std_out_file: "/usr/local/ccms/GTC_LOGS/navnow/${AUTO_JOB_NAME}_`date +%m%d%y_%T`.log"
+std_err_file: "/usr/local/ccms/GTC_LOGS/navnow/${AUTO_JOB_NAME}_`date +%m%d%y_%T`.log"
+max_run_alarm: 20
+alarm_if_fail: 1
