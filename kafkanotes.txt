@@ -1,0 +1,146 @@
+start zookeeper
+C:/Users/Yash/confluent-5.2.1/bin/windows/zookeeper-server-start.bat C:/Users/Yash/confluent-5.2.1/etc/kafka/zookeeper.properties
+
+
+start broker:
+C:/Users/Yash/confluent-5.2.1/bin/windows/kafka-server-start.bat C:/Users/Yash/confluent-5.2.1/etc/kafka/server.properties
+
+
+start schema-registry:
+C:/Users/Yash/confluent-5.2.1/bin/windows/schema-registry-start.bat C:/Users/Yash/confluent-5.2.1/etc/schema-registry/schema-registry.properties
+
+ 
+create topic:
+C:/Users/Yash/confluent-5.2.1/bin/windows/kafka-topics --create --zookeeper localhost:2181 --topic myfirst-topic --partitions 3 --replication-factor 1
+ 
+start producer for sending message:
+C:/Users/Yash/confluent-5.2.1/bin/windows/kafka-console-producer.bat --broker-list localhost:9092 --topic myfirst-topic
+ 
+start consumer for receiving message:
+C:/Users/Yash/confluent-5.2.1/bin/windows/kafka-console-consumer.bat --bootstrap-server localhost:9092 --topic myfirst-topic --from-beginning
+
+ 
+localhost ip: 127.0.0.1
+ 
+consumer bootstrap.servers=localhost:9092
+producer bootstrap.servers=localhost:9092
+ 
+
+set java home:
+SET JAVA_HOME=C:\Program Files\Java\jdk1.8.0_211
+SET PATH=%JAVA_HOME%\bin:%PATH%
+
+
+SET SPARK_HOME=C:\Users\Yash\spark-2.4.1-bin-hadoop2.7
+SET HADOOP_HOME=C:\Users\Yash\spark-2.4.1-bin-hadoop2.7
+SET PATH=%SPARK_HOME%\bin:%PATH%
+
+https://docs.confluent.io/4.0.1/quickstart.html
+
+spark-submit --master local[2] --class "org.apache.maven.spark_kafka.JavaWordCount" C:\Users\Yash\eclipse-workspace\spark-kafka\target\spark-kafka-0.0.1-SNAPSHOT.jar "C:\Users\Yash\spark-2.4.1-bin-hadoop2.7\README.md"
+
+spark-submit --class "org.apache.maven.spark_kafka.SparkSample" C:\Users\Yash\eclipse-workspace\spark-kafka\target\spark-kafka-0.0.1-SNAPSHOT.jar
+"C:\Users\Yash\spark-2.4.1-bin-hadoop2.7\README.md"
+
+describe topic
+--------------
+C:/Users/Yash/confluent-5.2.1/bin/windows/kafka-topics --describe --zookeeper localhost:2181 --topic myfirst-topic
+
+C:/Users/Yash/confluent-5.2.1/bin/windows/kafka-topics --create --zookeeper localhost:2181 --topic mysecond-topic --partitions 3 --replication-factor 1
+
+
+
+-------------------notes-----------------
+Offset topic (the __consumer_offsets topic)
+It is the only mysterious topic in Kafka log and it cannot be deleted by using TopicCommand. Unfortunately there is no dedicated official documentation to explain this internal topic. The closest source I can find is this set of slides. I strongly recommend reading it if you wish to understand how this internal topic works.
+
+In short, __consumer_offsets is used to store offsets of consumers which was previously stored only in ZooKeeper before version 0.8.1.1. At the latest version of 0.8.X serious, i.e. 0.8.2.2, the storage location of offsets can be configured by offsets.storage whose value can be either kafka or zookeeper. If it is kafka, consumers are still able to commit offsets to ZooKeeper by enabling dual.commit.enabled. However since version 0.9, consumer offsets have been designed to be stored on brokers only.
+-------------------------------------------------------new downloaded from git-----------------------------
+
+start zookeeper
+C:/Users/Yash/confluentplatform-master/bin/windows/zookeeper-server-start.bat C:/Users/Yash/confluentplatform-master/etc/kafka/zookeeper.properties
+
+
+start broker:
+C:/Users/Yash/confluentplatform-master/bin/windows/kafka-server-start.bat C:/Users/Yash/confluentplatform-master/etc/kafka/server.properties
+
+
+start schema-registry:
+C:/Users/Yash/confluentplatform-master/bin/windows/schema-registry-start.bat C:/Users/Yash/confluentplatform-master/etc/schema-registry/schema-registry.properties
+
+ 
+create topic:
+C:/Users/Yash/confluentplatform-master/bin/windows/kafka-topics --create --zookeeper localhost:2181 --topic anoopkh --partitions 1 --replication-factor 1
+ 
+start producer for sending message:
+C:/Users/Yash/confluentplatform-master/bin/windows/kafka-console-producer.bat --broker-list localhost:9092 --topic anoopkh
+ 
+start consumer for receiving message:
+C:/Users/Yash/confluentplatform-master/bin/windows/kafka-console-consumer.bat --bootstrap-server localhost:9092 --zookeeper localhost:2181 --topic anoopkh --from-beginning
+
+ 
+localhost ip: 127.0.0.1
+ 
+consumer bootstrap.servers=localhost:9092
+producer bootstrap.servers=localhost:9092
+ 
+set java home:
+SET JAVA_HOME=C:\Program Files\Java\jdk1.8.0_211
+SET PATH=%JAVA_HOME%\bin:%PATH%
+
+
+SET SPARK_HOME=C:\Users\Yash\spark-2.4.1-bin-hadoop2.7
+SET HADOOP_HOME=C:\Users\Yash\spark-2.4.1-bin-hadoop2.7
+SET PATH=%SPARK_HOME%\bin:%PATH%
+
+https://docs.confluent.io/4.0.1/quickstart.html
+
+
+-------------------------------------youtube video--------------------------------
+
+https://www.youtube.com/watch?v=65lHphtrfo0
+
+KStream Vs Dstream(spark streaming)
+-----------------------------------
+https://dzone.com/articles/spark-streaming-vs-kafka-stream-1
+Conclusion
+I believe that Kafka Streams is still best used in a "Kafka > Kafka" context, 
+while Spark Streaming could be used for a "Kafka > Database" or "Kafka > Data science model" type of context.
+
+
+structured streaming:
+
+https://dzone.com/articles/basic-example-for-spark-structured-streaming-amp-k?fromrel=true
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+-------------sample word count----------
+val dfsFilename = "C:/Users/Yash/input.txt"
+val readFileRDD = spark.sparkContext.textFile(dfsFilename)
+val wcounts1 = readFileRDD.flatMap(line=>line.split(" ")).filter(w => (w =="Humpty") || (w == "Dumpty")).map(word=>(word, 1)).reduceByKey(_ + _)
+wcounts1.collect.foreach(println)
