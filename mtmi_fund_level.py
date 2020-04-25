@@ -1,12 +1,5 @@
 """*********************************************************************************************
  Script Name  :      mtmi_fund_training.py
- 
- Project      :      Nav Now
- 
- Author       :      kiran reddy kancharla
-
-
-
 pyspark job for mtmi fund level prediciotns.
 
 The scipt will be called from the wrapper file.
